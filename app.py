@@ -3,6 +3,9 @@ import pandas as pd
 import ast
 import matplotlib.pyplot as plt
 
+st.set_page_config(page_title='Gedebano School Results and Analytics', layout='wide')
+st.title('Gedebano School Entrance Exam Results and Analytics')
+
 # Load the CSV file
 @st.cache_data
 def load_data():
@@ -73,45 +76,53 @@ def get_analytics():
     return rankings, top_scores, avg_scores, above_50_percent
 
 # Create the Streamlit app
-st.title('Gedebano School Enterance Exam Results and Analytics')
 
 # Input for student ID
-admission_number = st.text_input('Enter Admission Number:')
+col1, col2 = st.columns([3, 1])
+with col1:
+    admission_number = st.text_input('Enter Admission Number:', key='admission_number', placeholder='e.g., 12345')
+with col2:
+    st.write('')  # Just an empty space to align the button
 
-if admission_number:
-    results = get_student_results(admission_number)
-    if results:
-        st.write('**Student Results**')
-        st.write(f"**Name:** {results['Name']}")
-        st.write(f"**Gender:** {results['Gender']}")
-        st.write(f"**Stream:** {results['Stream']}")
-        st.write(f"**School:** {results['School']}")
-        st.write(f"**Total Score:** {results['Total Score']}")
-        st.write(f"**Subject Scores:**")
-        for subject, score in results['Subject Scores'].items():
-            st.write(f"{subject}: {score}")
+# Button to submit
+if st.button('Get Results'):
+    if admission_number:
+        results = get_student_results(admission_number)
+        if results:
+            st.subheader('Student Results')
+            st.markdown(f"**Name:** {results['Name']}")
+            st.markdown(f"**Gender:** {results['Gender']}")
+            st.markdown(f"**Stream:** {results['Stream']}")
+            st.markdown(f"**School:** {results['School']}")
+            st.markdown(f"**Total Score:** {results['Total Score']}")
+            st.markdown("**Subject Scores:**")
+            for subject, score in results['Subject Scores'].items():
+                st.markdown(f"- {subject}: {score}")
+        else:
+            st.warning("No results found for this admission number.")
     else:
-        st.write("No results found for this admission number.")
+        st.warning("Please enter an admission number.")
 
 # Show analytics
-st.write('**Analytics**')
+st.subheader('Analytics')
 
 # Display rankings
 rankings, top_scores, avg_scores, above_50_percent = get_analytics()
 
-st.write('**Top Scores**')
+# Display top scores
+st.write('### Top Scores by Stream')
 for stream, ranking_df in rankings.items():
     st.write(f"**{stream}**")
-    st.write(ranking_df)
+    st.dataframe(ranking_df.style.set_properties(**{'text-align': 'center'}).background_gradient(cmap='Blues'))
 
 # Display top scores by subject
-st.write('**Top Scores by Subject**')
+st.write('### Top Scores by Subject')
 for subject, top_df in top_scores.items():
     st.write(f"**{subject}**")
-    st.write(top_df)
+    st.dataframe(top_df.style.set_properties(**{'text-align': 'center'}).background_gradient(cmap='Greens'))
 
 # Display average scores and percentage of students scoring >= 50%
-st.write('**Average Scores per Subject**')
+st.write('### Average Scores per Subject')
 avg_scores_df = pd.DataFrame(list(avg_scores.items()), columns=['Subject', 'Average Score'])
 fig, ax = plt.subplots(figsize=(12, 6))
 ax.bar(avg_scores_df['Subject'], avg_scores_df['Average Score'], color='skyblue')
@@ -123,13 +134,13 @@ for i, v in enumerate(avg_scores_df['Average Score']):
     ax.text(i, v + 1, f"{v:.1f}", ha='center', va='bottom')
 st.pyplot(fig)
 
-st.write('**Percentage of students with score greater than or equal to 50% per subject**')
-above_50_df = pd.DataFrame(list(above_50_percent.items()), columns=['Subject', 'Percentage >= 50%'])
+st.write('### Percentage of Students with Score more than or equal to 50% per Subject')
+above_50_df = pd.DataFrame(list(above_50_percent.items()), columns=['Subject', '      Percentage >= 50%'])
 fig, ax = plt.subplots(figsize=(12, 6))
 ax.bar(above_50_df['Subject'], above_50_df['Percentage >= 50%'], color='salmon')
 ax.set_xlabel('Subject')
 ax.set_ylabel('Percentage >= 50%')
-ax.set_title('                   Scoring >= 50%')
+ax.set_title('Percentage of Students Scoring >= 50%')
 ax.set_xticklabels(above_50_df['Subject'], rotation=45, ha='right')
 for i, v in enumerate(above_50_df['Percentage >= 50%']):
     ax.text(i, v + 1, f"{v:.1f}%", ha='center', va='bottom')
