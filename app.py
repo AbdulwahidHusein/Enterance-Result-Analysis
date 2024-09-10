@@ -135,7 +135,7 @@ for i, v in enumerate(avg_scores_df['Average Score']):
 st.pyplot(fig)
 
 st.write('### Percentage of Students with Score more than or equal to 50% per Subject')
-above_50_df = pd.DataFrame(list(above_50_percent.items()), columns=['Subject', '      Percentage >= 50%'])
+above_50_df = pd.DataFrame(list(above_50_percent.items()), columns=['Subject', 'Percentage >= 50%'])
 fig, ax = plt.subplots(figsize=(12, 6))
 ax.bar(above_50_df['Subject'], above_50_df['Percentage >= 50%'], color='salmon')
 ax.set_xlabel('Subject')
